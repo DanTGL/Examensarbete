@@ -35,7 +35,7 @@ int16_t binarySearchPrefix(std::vector<std::string> arr, std::string prefix) {
     return -1;
 }
 
-bool naive2d(Grid* grid, std::vector<std::string> words) {
+bool naive(Grid* grid, std::vector<std::string> words) {
     for (size_t i = 0; i < grid->getGridSize() * grid->getGridSize(); i++) {
         for (int dir = 1; dir < 4; dir++) {
             uint8_t deltaX = dir & 0x01;
@@ -56,7 +56,8 @@ bool naive2d(Grid* grid, std::vector<std::string> words) {
             } while ((result = binarySearchPrefix(words, prefix)) == -2);
 
             if (result >= 0) {
-                words.erase(words.begin() + (size_t)result);
+                words.erase(words.begin() + result);
+                words.shrink_to_fit();
                 uint8_t startX = i % grid->getGridSize();
                 uint8_t startY = i / grid->getGridSize();
 
@@ -73,37 +74,32 @@ bool naive2d(Grid* grid, std::vector<std::string> words) {
 }
 
 int main() {
-    Grid* grid = new Grid(5);
-    uint8_t* ptr;
+    size_t gridSize = 6;
+    Grid* grid = new Grid(gridSize);
 
-    uint8_t tiles[5 * 5] = {
-        'L', 'O', 'V', 'E', 'E',
-        'K', 'R', 'O', 'S', 'E',
-        'I', 'H', 'U', 'G', 'A',
-        'S', 'D', 'E', 'A', 'R',
-        'S', 'P', 'N', 'T', 'A'
+
+    uint8_t* ptr;
+    uint8_t tiles[gridSize * gridSize] = {
+        'N', 'K', 'L', 'L', 'K', 'C',
+        'R', 'B', 'S', 'L', 'K', 'A',
+        'E', 'L', 'I', 'L', 'C', 'N',
+        'D', 'I', 'F', 'R', 'N', 'D',
+        'Y', 'K', 'C', 'U', 'D', 'Y',
+        'Y', 'E', 'F', 'K', 'M', 'N'
     };
 
-    ptr = &tiles[0];
-
     std::vector<std::string> words;
-    std::string wordsArr[5] = {"DEAR", "HUG", "KISS", "LOVE", "ROSE"};
+    std::string wordsArr[5] = {"BIRD", "CANDY", "FUN", "LIKE", "RED"};
     words.insert(words.begin(), std::begin(wordsArr), std::end(wordsArr));
 
     grid->setTiles(tiles);
 
     auto start = std::chrono::steady_clock::now();
-    naive2d(grid, words);
+    naive(grid, words);
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
 
     std::cout << "Speed (sec): " << elapsed_seconds.count() << std::endl;
-
-    /*printf("%c\n", grid->getTile(2));
-    printf("%c\n", grid->getTile(5));
-    printf("%c\n", grid->getTile(6));
-
-    grid->~Grid();*/
     
     delete grid;
     return 0;
